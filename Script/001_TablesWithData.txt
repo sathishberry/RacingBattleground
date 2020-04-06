@@ -1,0 +1,321 @@
+USE [RaceApp]
+GO
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Track_Location]') AND parent_object_id = OBJECT_ID(N'[dbo].[Track]'))
+ALTER TABLE [dbo].[Track] DROP CONSTRAINT [FK_Track_Location]
+GO
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_RaceHistory_Race]') AND parent_object_id = OBJECT_ID(N'[dbo].[RaceHistory]'))
+ALTER TABLE [dbo].[RaceHistory] DROP CONSTRAINT [FK_RaceHistory_Race]
+GO
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_RaceHistory_Car]') AND parent_object_id = OBJECT_ID(N'[dbo].[RaceHistory]'))
+ALTER TABLE [dbo].[RaceHistory] DROP CONSTRAINT [FK_RaceHistory_Car]
+GO
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Driver_Country]') AND parent_object_id = OBJECT_ID(N'[dbo].[Driver]'))
+ALTER TABLE [dbo].[Driver] DROP CONSTRAINT [FK_Driver_Country]
+GO
+/****** Object:  Table [dbo].[Track]    Script Date: 06-04-2020 03:08:53 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Track]') AND type in (N'U'))
+DROP TABLE [dbo].[Track]
+GO
+/****** Object:  Table [dbo].[RaceHistory]    Script Date: 06-04-2020 03:08:53 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[RaceHistory]') AND type in (N'U'))
+DROP TABLE [dbo].[RaceHistory]
+GO
+/****** Object:  Table [dbo].[Race]    Script Date: 06-04-2020 03:08:53 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Race]') AND type in (N'U'))
+DROP TABLE [dbo].[Race]
+GO
+/****** Object:  Table [dbo].[Location]    Script Date: 06-04-2020 03:08:53 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Location]') AND type in (N'U'))
+DROP TABLE [dbo].[Location]
+GO
+/****** Object:  Table [dbo].[Driver]    Script Date: 06-04-2020 03:08:53 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Driver]') AND type in (N'U'))
+DROP TABLE [dbo].[Driver]
+GO
+/****** Object:  Table [dbo].[Country]    Script Date: 06-04-2020 03:08:53 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Country]') AND type in (N'U'))
+DROP TABLE [dbo].[Country]
+GO
+/****** Object:  Table [dbo].[Car]    Script Date: 06-04-2020 03:08:53 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Car]') AND type in (N'U'))
+DROP TABLE [dbo].[Car]
+GO
+/****** Object:  Table [dbo].[Car]    Script Date: 06-04-2020 03:08:53 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Car]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[Car](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[EngineCapacity] [float] NOT NULL,
+	[HorsePower] [nvarchar](20) NULL,
+ CONSTRAINT [PK_Car] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+/****** Object:  Table [dbo].[Country]    Script Date: 06-04-2020 03:08:53 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Country]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[Country](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+ CONSTRAINT [PK_Country] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+/****** Object:  Table [dbo].[Driver]    Script Date: 06-04-2020 03:08:53 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Driver]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[Driver](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Gender] [nvarchar](1) NOT NULL,
+	[DOB] [date] NULL,
+	[Country_Id] [int] NOT NULL,
+ CONSTRAINT [PK_Driver] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+/****** Object:  Table [dbo].[Location]    Script Date: 06-04-2020 03:08:53 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Location]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[Location](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Location] [nvarchar](150) NOT NULL,
+ CONSTRAINT [PK_Location] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+/****** Object:  Table [dbo].[Race]    Script Date: 06-04-2020 03:08:53 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Race]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[Race](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[RaceName] [nvarchar](100) NOT NULL,
+	[Track_Id] [int] NOT NULL,
+	[ConductedDate] [date] NOT NULL,
+ CONSTRAINT [PK_Race] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+/****** Object:  Table [dbo].[RaceHistory]    Script Date: 06-04-2020 03:08:53 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[RaceHistory]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[RaceHistory](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Race_Id] [int] NOT NULL,
+	[Driver_Id] [int] NOT NULL,
+	[Car_Id] [int] NOT NULL,
+	[TopSpeedDriven] [float] NOT NULL,
+	[CompletionTime] [float] NOT NULL,
+ CONSTRAINT [PK_RaceHistory] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+/****** Object:  Table [dbo].[Track]    Script Date: 06-04-2020 03:08:53 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Track]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[Track](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Location_Id] [int] NOT NULL,
+	[TrackName] [nvarchar](500) NOT NULL,
+	[TrackLength] [float] NOT NULL,
+	[Unit] [nvarchar](5) NOT NULL,
+ CONSTRAINT [PK_Track] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+SET IDENTITY_INSERT [dbo].[Car] ON 
+
+INSERT [dbo].[Car] ([Id], [Name], [EngineCapacity], [HorsePower]) VALUES (1, N'Ferrari SF90', 3300, N'329hp')
+INSERT [dbo].[Car] ([Id], [Name], [EngineCapacity], [HorsePower]) VALUES (2, N'Mercedes-AMG F1', 3399, N'343hp')
+INSERT [dbo].[Car] ([Id], [Name], [EngineCapacity], [HorsePower]) VALUES (3, N'McLaren MCL34', 3400, N'344hp')
+INSERT [dbo].[Car] ([Id], [Name], [EngineCapacity], [HorsePower]) VALUES (4, N'Alfa Romeo', 3349, N'332hp')
+INSERT [dbo].[Car] ([Id], [Name], [EngineCapacity], [HorsePower]) VALUES (5, N'Mercedes M10', 3449, N'346hp')
+INSERT [dbo].[Car] ([Id], [Name], [EngineCapacity], [HorsePower]) VALUES (6, N'Red Bull RB15', 3500, N'349hp')
+INSERT [dbo].[Car] ([Id], [Name], [EngineCapacity], [HorsePower]) VALUES (7, N'Alfa Romeo', 3499, N'347hp')
+INSERT [dbo].[Car] ([Id], [Name], [EngineCapacity], [HorsePower]) VALUES (8, N'Haas VF-19', 3349, N'333hp')
+INSERT [dbo].[Car] ([Id], [Name], [EngineCapacity], [HorsePower]) VALUES (9, N'Renault R.S.19', 3500, N'350hp')
+INSERT [dbo].[Car] ([Id], [Name], [EngineCapacity], [HorsePower]) VALUES (10, N'Honda RA619H23', 3299, N'329hp')
+
+SET IDENTITY_INSERT [dbo].[Car] OFF
+
+GO
+SET IDENTITY_INSERT [dbo].[Country] ON 
+INSERT [dbo].[Country] ([Id], [Name]) VALUES (1, N'England')
+INSERT [dbo].[Country] ([Id], [Name]) VALUES (2, N'Finland')
+INSERT [dbo].[Country] ([Id], [Name]) VALUES (3, N'Dutch')
+INSERT [dbo].[Country] ([Id], [Name]) VALUES (4, N'Monégasque')
+INSERT [dbo].[Country] ([Id], [Name]) VALUES (5, N'German')
+INSERT [dbo].[Country] ([Id], [Name]) VALUES (6, N'Spain')
+INSERT [dbo].[Country] ([Id], [Name]) VALUES (7, N'France')
+INSERT [dbo].[Country] ([Id], [Name]) VALUES (8, N'Australia')
+INSERT [dbo].[Country] ([Id], [Name]) VALUES (9, N'Mexico')
+SET IDENTITY_INSERT [dbo].[Country] OFF
+
+GO
+SET IDENTITY_INSERT [dbo].[Driver] ON 
+
+INSERT [dbo].[Driver] ([Id], [Name], [Gender], [DOB], [Country_Id]) VALUES (1, N'Lewis Hamilton', N'M', CAST(N'1985-01-07' AS Date), 1)
+INSERT [dbo].[Driver] ([Id], [Name], [Gender], [DOB], [Country_Id]) VALUES (3, N'Valtteri Viktor Bottas', N'M', CAST(N'1989-08-27' AS Date), 2)
+INSERT [dbo].[Driver] ([Id], [Name], [Gender], [DOB], [Country_Id]) VALUES (4, N'Max Emilian Verstappen', N'M', CAST(N'1997-09-30' AS Date), 3)
+INSERT [dbo].[Driver] ([Id], [Name], [Gender], [DOB], [Country_Id]) VALUES (5, N'Charles Leclerc', N'M', CAST(N'1997-10-16' AS Date), 4)
+INSERT [dbo].[Driver] ([Id], [Name], [Gender], [DOB], [Country_Id]) VALUES (6, N'Sebastian Vettel', N'M', CAST(N'1987-07-03' AS Date), 5)
+INSERT [dbo].[Driver] ([Id], [Name], [Gender], [DOB], [Country_Id]) VALUES (7, N'Carlos Sainz Jr', N'M', CAST(N'1994-09-01' AS Date), 6)
+INSERT [dbo].[Driver] ([Id], [Name], [Gender], [DOB], [Country_Id]) VALUES (8, N'Pierre Gasly', N'M', CAST(N'1996-02-07' AS Date), 7)
+INSERT [dbo].[Driver] ([Id], [Name], [Gender], [DOB], [Country_Id]) VALUES (9, N'Alexander Albon Ansusinha', N'M', CAST(N'1996-03-23' AS Date), 1)
+INSERT [dbo].[Driver] ([Id], [Name], [Gender], [DOB], [Country_Id]) VALUES (10, N'Sergio Pérez', N'M', CAST(N'1990-01-26' AS Date), 9)
+INSERT [dbo].[Driver] ([Id], [Name], [Gender], [DOB], [Country_Id]) VALUES (11, N'Daniel Ricciardo', N'M', CAST(N'1989-07-01' AS Date), 8)
+
+SET IDENTITY_INSERT [dbo].[Driver] OFF
+
+GO
+SET IDENTITY_INSERT [dbo].[Location] ON 
+
+INSERT [dbo].[Location] ([Id], [Location]) VALUES (1, N'Melbourne')
+
+INSERT [dbo].[Location] ([Id], [Location]) VALUES (2, N'Sakhir')
+
+INSERT [dbo].[Location] ([Id], [Location]) VALUES (3, N'Shanghai')
+
+INSERT [dbo].[Location] ([Id], [Location]) VALUES (4, N'Baku')
+
+INSERT [dbo].[Location] ([Id], [Location]) VALUES (5, N'Montmeló')
+SET IDENTITY_INSERT [dbo].[Location] OFF
+GO
+
+SET IDENTITY_INSERT [dbo].[Race] ON 
+INSERT [dbo].[Race] ([Id], [RaceName], [Track_Id], [ConductedDate]) VALUES (1, N'Australian Grand Prix', 2, CAST(N'2019-03-17' AS Date))
+INSERT [dbo].[Race] ([Id], [RaceName], [Track_Id], [ConductedDate]) VALUES (2, N'Bahrain Grand Prix', 3, CAST(N'2019-03-31' AS Date))
+SET IDENTITY_INSERT [dbo].[Race] OFF
+
+GO
+SET IDENTITY_INSERT [dbo].[RaceHistory] ON 
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (1, 1, 1, 1, 200, 5406)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (2, 1, 3, 2, 198, 5438)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (3, 1, 4, 3, 201, 5422)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (4, 1, 5, 4, 200, 5449)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (5, 1, 6, 5, 204, 5386)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (6, 1, 7, 6, 199, 5417)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (7, 1, 8, 7, 208, 5501)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (9, 1, 9, 8, 210, 5491)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (10, 1, 10, 9, 196, 5589)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (11, 1, 11, 10, 190, 5601)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (13, 2, 1, 1, 219, 5368)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (14, 2, 3, 2, 199, 5419)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (15, 2, 4, 3, 201, 5436)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (16, 2, 5, 4, 206, 5426)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (17, 2, 6, 5, 198, 5449)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (18, 2, 7, 6, 193, 5580)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (19, 2, 8, 7, 197, 5591)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (20, 2, 9, 8, 197, 5588)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (21, 2, 10, 9, 200, 5401)
+
+INSERT [dbo].[RaceHistory] ([Id], [Race_Id], [Driver_Id], [Car_Id], [TopSpeedDriven], [CompletionTime]) VALUES (22, 2, 11, 10, 200, 5499)
+
+SET IDENTITY_INSERT [dbo].[RaceHistory] OFF
+GO
+
+SET IDENTITY_INSERT [dbo].[Track] ON 
+
+INSERT [dbo].[Track] ([Id], [Location_Id], [TrackName], [TrackLength], [Unit]) VALUES (2, 1, N'Melbourne Grand Prix Circuit', 307.574, N'KM')
+
+INSERT [dbo].[Track] ([Id], [Location_Id], [TrackName], [TrackLength], [Unit]) VALUES (3, 2, N'Bahrain International Circuit', 308.405, N'KM')
+
+SET IDENTITY_INSERT [dbo].[Track] OFF
+GO
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Driver_Country]') AND parent_object_id = OBJECT_ID(N'[dbo].[Driver]'))
+ALTER TABLE [dbo].[Driver]  WITH CHECK ADD  CONSTRAINT [FK_Driver_Country] FOREIGN KEY([Country_Id])
+REFERENCES [dbo].[Country] ([Id])
+GO
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Driver_Country]') AND parent_object_id = OBJECT_ID(N'[dbo].[Driver]'))
+ALTER TABLE [dbo].[Driver] CHECK CONSTRAINT [FK_Driver_Country]
+GO
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_RaceHistory_Car]') AND parent_object_id = OBJECT_ID(N'[dbo].[RaceHistory]'))
+ALTER TABLE [dbo].[RaceHistory]  WITH CHECK ADD  CONSTRAINT [FK_RaceHistory_Car] FOREIGN KEY([Car_Id])
+REFERENCES [dbo].[Car] ([Id])
+GO
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_RaceHistory_Car]') AND parent_object_id = OBJECT_ID(N'[dbo].[RaceHistory]'))
+ALTER TABLE [dbo].[RaceHistory] CHECK CONSTRAINT [FK_RaceHistory_Car]
+GO
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_RaceHistory_Race]') AND parent_object_id = OBJECT_ID(N'[dbo].[RaceHistory]'))
+ALTER TABLE [dbo].[RaceHistory]  WITH CHECK ADD  CONSTRAINT [FK_RaceHistory_Race] FOREIGN KEY([Race_Id])
+REFERENCES [dbo].[Race] ([Id])
+GO
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_RaceHistory_Race]') AND parent_object_id = OBJECT_ID(N'[dbo].[RaceHistory]'))
+ALTER TABLE [dbo].[RaceHistory] CHECK CONSTRAINT [FK_RaceHistory_Race]
+GO
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Track_Location]') AND parent_object_id = OBJECT_ID(N'[dbo].[Track]'))
+ALTER TABLE [dbo].[Track]  WITH CHECK ADD  CONSTRAINT [FK_Track_Location] FOREIGN KEY([Location_Id])
+REFERENCES [dbo].[Location] ([Id])
+GO
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Track_Location]') AND parent_object_id = OBJECT_ID(N'[dbo].[Track]'))
+ALTER TABLE [dbo].[Track] CHECK CONSTRAINT [FK_Track_Location]
+GO
