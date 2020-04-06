@@ -1,0 +1,133 @@
+USE [RaceApp]
+GO
+/****** Object:  StoredProcedure [dbo].[GetTopDriverOfEachRace]    Script Date: 07-04-2020 01:36:52 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetTopDriverOfEachRace]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetTopDriverOfEachRace]
+GO
+/****** Object:  StoredProcedure [dbo].[GetDriverHistory]    Script Date: 07-04-2020 01:36:52 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetDriverHistory]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetDriverHistory]
+GO
+
+/****** Object:  StoredProcedure [dbo].[GetDriverHistory]    Script Date: 07-04-2020 01:36:52 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sathish
+-- Create date: 2020-April-07
+-- Description:	Get info on all drivers - wins and losses 
+-- EXEC dbo.GetDriverHistory
+-- =============================================
+CREATE PROCEDURE [dbo].[GetDriverHistory]
+AS
+BEGIN
+	
+	SET NOCOUNT ON;
+	
+	--Hold Final Result's required data
+	CREATE TABLE #Temp_Driver_Detail(DriverID INT, NumberOfRacesparticipated INT, NumberOfRacesWon INT, CarWithMostWins INT, CarWithMostLosses INT, TrackWithMostWins INT, TrackWithMostLosses INT, CategoryWithMostWins INT, CategoryWithMostLosses INT, TopSpeedDriven float)
+
+	SELECT *, RANK() OVER (PARTITION BY RACE_ID ORDER BY CompletionTime) PositionNo 
+		,IIF(RANK() OVER (PARTITION BY RACE_ID ORDER BY CompletionTime)<=3, 'Won','Lost') RaceStatus
+	into #TEMP_RaceHistory
+	FROM RaceHistory
+
+
+	INSERT INTO #Temp_Driver_Detail (DriverID,NumberOfRacesparticipated,TopSpeedDriven,NumberOfRacesWon)
+		SELECT Driver_Id, Count(1) NumberOfRacesparticipated,MAX(TopSpeedDriven) TopSpeedDriven,
+		SUM(IIF(PositionNo <=3, 1,0 )) NumberOfRacesWon 
+		--COUNT(IIF(PositionNo >=4, 1,0 )) NumberOfRacesLost,
+		FROM #TEMP_RaceHistory group by Driver_Id
+
+	--Car With Most Wins
+	UPDATE T SET 
+		CarWithMostWins = CTE.Car_Id, CategoryWithMostWins = CTE.Car_Id
+		FROM #Temp_Driver_Detail T JOIN
+		(SELECT Driver_Id,Car_Id,COUNT(Car_Id) [COUNT] ,ROW_NUMBER() OVER(partition BY Driver_Id,Car_Id ORDER BY COUNT(Car_Id) DESC) RNo 
+		FROM #TEMP_RaceHistory 
+		where RaceStatus='Won'group by Driver_Id,Car_Id
+		) CTE ON CTE.Driver_Id = T.DriverID AND RNo = 1
+
+	--Car With Most Looses
+	UPDATE T SET 
+		CarWithMostLosses = CTE.Car_Id, CategoryWithMostLosses = CTE.Car_Id
+		FROM #Temp_Driver_Detail T JOIN
+		(SELECT Driver_Id,Car_Id,COUNT(Car_Id) [COUNT] ,ROW_NUMBER() OVER(partition BY Driver_Id,Car_Id ORDER BY COUNT(Car_Id) DESC) RNo 
+		FROM #TEMP_RaceHistory 
+		where RaceStatus='Lost'group by Driver_Id,Car_Id
+		) CTE ON CTE.Driver_Id = T.DriverID AND RNo = 1
+
+	--Track with most win
+	UPDATE T SET 
+		TrackWithMostWins = CTE.Track_Id
+		FROM #Temp_Driver_Detail T JOIN
+		(SELECT Driver_Id,R.Track_Id,COUNT(1) [COUNT] ,ROW_NUMBER() OVER(partition BY Driver_Id,R.Track_Id ORDER BY COUNT(R.Track_Id) DESC) RNo 
+		FROM #TEMP_RaceHistory RH JOIN Race R ON R.Id=RH.Race_Id
+		where RaceStatus='Won'group by Driver_Id,R.Track_Id
+		) CTE ON CTE.Driver_Id = T.DriverID AND RNo = 1
+
+	--Track with most LOOSES
+	UPDATE T SET 
+		TrackWithMostLosses = CTE.Track_Id
+		FROM #Temp_Driver_Detail T JOIN
+		(SELECT Driver_Id,R.Track_Id,COUNT(1) [COUNT] ,ROW_NUMBER() OVER(partition BY Driver_Id,R.Track_Id ORDER BY COUNT(R.Track_Id) DESC) RNo 
+		FROM #TEMP_RaceHistory RH JOIN Race R ON R.Id=RH.Race_Id
+		where RaceStatus='Lost'group by Driver_Id,R.Track_Id
+		) CTE ON CTE.Driver_Id = T.DriverID AND RNo = 1
+
+
+		--SELECT * FROM #Temp_Driver_Detail
+		SELECT D.Name [Driver Name],T.NumberOfRacesparticipated [Number of Races participated], T.NumberOfRacesWon [Number of Races Won]
+		,CMW.Name [Car with Most wins], CML.Name [Car with Most losses]
+		,TRW.TrackName [Track with Most Wins], TRL.TrackName [Track with Most Losses],CCMW.EngineCapacity [Category with Most wins]
+		, CCML.EngineCapacity [Category with most losses], T.TopSpeedDriven [Top Speed Driven]
+		FROM dbo.Driver D JOIN #Temp_Driver_Detail  T on D.Id = T.DriverID
+		LEFT JOIN Car CMW ON CMW.Id = T.CarWithMostWins
+		LEFT JOIN Car CML ON CML.Id = T.CarWithMostLosses 
+		LEFT JOIN Track TRW ON TRW.Id = T.TrackWithMostWins
+		LEFT JOIN Track TRL ON TRL.Id = T.TrackWithMostLosses
+		LEFT JOIN Car CCMW ON CCMW.Id = T.CategoryWithMostWins
+		LEFT JOIN Car CCML ON CCML.Id = T.CategoryWithMostLosses 
+
+
+	DROP TABLE #TEMP_RaceHistory
+	DROP TABLE #Temp_Driver_Detail	 
+
+END
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[GetTopDriverOfEachRace]    Script Date: 07-04-2020 01:36:52 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sathish
+-- Create date: 2020-April-06
+-- Description:	Get info on the top driver of each race and the cars he/she drove for those races. 
+-- EXEC dbo.GetTopDriverOfEachRace
+-- =============================================
+CREATE PROCEDURE [dbo].[GetTopDriverOfEachRace]
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+	;WITH CTE AS(
+		SELECT *,RANK()over(partition by Race_Id order by CompletionTime) [Rank] FROM dbo.RaceHistory 
+		) 
+		select L.Location, T.TrackName,CONCAT(T.TrackLength,' ',T.Unit) TrackLength, CONCAT(EngineCapacity, ' cc') Capacity,C.Name Car, CONCAT(TopSpeedDriven,' km/h') TopSpeedDriven, CompletionTime FROM CTE RH
+		JOIN dbo.Race R ON RH.Race_Id = R.Id AND [Rank] = 1
+		JOIN dbo.Track T ON R.Track_Id = T.Id
+		JOIN dbo.Location L ON T.Location_Id = L.Id
+		JOIN dbo.Car C ON RH.Car_Id=C.ID 
+
+END
+
+GO
